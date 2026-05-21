@@ -18,6 +18,7 @@ router.get('/external/top', AnimeControllers.getTopAnimes);
 router.get('/external/search', AnimeControllers.searchExternalAnime);
 router.get('/external/info/:animeId', AnimeControllers.getExternalAnimeInfo);
 router.get('/external/stream/:episodeId', AnimeControllers.getExternalAnimeStream);
+router.get('/external/proxy', AnimeControllers.proxyStream);
 
 router
   .route('/:id')

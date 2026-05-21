@@ -1,9 +1,13 @@
 import axios from 'axios';
+import { ANIME } from '@consumet/extensions';
 import QueryBuilder from '../../app/utils/queryBuilder.js';
 import Anime from './anime.model.js';
 import AppError from '../../app/errors/AppError.js';
 import httpStatus from '../../app/constants/httpStatus.js';
 import config from '../../app/config/index.js';
+
+const animepahe = new ANIME.AnimePahe();
+animepahe.baseUrl = 'https://animepahe.pw';
 
 // Create a new anime
 const createAnimeIntoDB = async (payload) => {
@@ -95,14 +99,14 @@ const getTopAnimesFromJikan = async () => {
   }
 };
 
-// 2. Search Anime from Consumet (Gogoanime provider)
+// 2. Search Anime from Consumet (AnimePahe provider)
 const searchAnimeFromConsumet = async (queryStr) => {
   try {
     if (!queryStr) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Query parameter is required');
     }
-    const response = await axios.get(`${config.consumet_api_url}/anime/gogoanime/${queryStr}`);
-    return response.data || [];
+    const response = await animepahe.search(queryStr);
+    return response || [];
   } catch (error) {
     throw new AppError(
       error.response?.status || httpStatus.INTERNAL_SERVER_ERROR,
@@ -114,8 +118,8 @@ const searchAnimeFromConsumet = async (queryStr) => {
 // 3. Get Anime details & episodes from Consumet
 const getAnimeInfoFromConsumet = async (animeId) => {
   try {
-    const response = await axios.get(`${config.consumet_api_url}/anime/gogoanime/info/${animeId}`);
-    return response.data || {};
+    const response = await animepahe.fetchAnimeInfo(animeId);
+    return response || {};
   } catch (error) {
     throw new AppError(
       error.response?.status || httpStatus.INTERNAL_SERVER_ERROR,
@@ -127,8 +131,8 @@ const getAnimeInfoFromConsumet = async (animeId) => {
 // 4. Get video streaming links from Consumet
 const getAnimeStreamFromConsumet = async (episodeId) => {
   try {
-    const response = await axios.get(`${config.consumet_api_url}/anime/gogoanime/watch/${episodeId}`);
-    return response.data || {};
+    const response = await animepahe.fetchEpisodeSources(episodeId);
+    return response || {};
   } catch (error) {
     throw new AppError(
       error.response?.status || httpStatus.INTERNAL_SERVER_ERROR,
